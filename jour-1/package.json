@@ -1,0 +1,19 @@
+{
+  "name": "hello-world",
+  "version": "1.0.0",
+  "description": "Hello World server in Node.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AshtomGVA/nodejs-pour-nomades.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AshtomGVA/nodejs-pour-nomades/issues"
+  },
+  "homepage": "https://github.com/AshtomGVA/nodejs-pour-nomades#readme"
+}
