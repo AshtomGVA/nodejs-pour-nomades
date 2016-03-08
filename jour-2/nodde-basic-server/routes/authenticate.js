@@ -13,8 +13,13 @@ var authentication = {
     if(mockUpData.users[nameOrEmail]) {
       if(mockUpData.users[nameOrEmail].password == candidatePassword) {
         console.log('Successfully authenticated!!!!');
-        jwt.sign({id:mockUpData.users[nameOrEmail].id},config.secretTokenKey,function(token){
-          console.log('Token', token);
+
+        /*var token = jwt.sign({id:mockUpData.users[nameOrEmail].id},config.secretTokenKey);
+        console.log('Token', token);
+        */
+        //console.log({id:mockUpData.users[nameOrEmail].id});
+        jwt.sign({id:mockUpData.users[nameOrEmail].id},config.secretTokenKey, {}, function(token){
+          return token;
         });
       }
     }
@@ -47,12 +52,15 @@ var authentication = {
           res.end();
         }
         else if(req.body.identifier && req.body.password) {
-          authentication.authenticateUser(req.body.identifier, req.body.password);
+          var token = authentication.authenticateUser(req.body.identifier, req.body.password);
+          if(token) {
+            res.writeHead(200);
+            res.write({token: token});
+            res.end;
+          }
         }
         break;
-    }
-    console.log('Auth request method: '+req.method);
-    console.log('Auth request query: '+req.query);
+    }    
     /*
     res.writeHead(500);
     res.write('{ "error": "unimplemented"}');
