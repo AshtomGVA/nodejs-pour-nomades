@@ -1,8 +1,9 @@
+<<<<<<< HEAD
 var names = [
 	"Fredrik",
 	"Richardson",
 	"Leo",
-	"Nyah",
+	"Nghiah",
 	"Alexandre"
 ]
 
