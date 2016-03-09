@@ -16,7 +16,7 @@ describe('specify the user resource management with this API', function () {
   before(function (done) {
     //authenticate:
     server.post('/authenticate')
-      .send({identifier: 'joe', password: 'password'})
+      .send({identifier: 'john', password: 'password'})
       .end(function (err, res) {
         if(err) { throw err; }
         token = res.body.token;

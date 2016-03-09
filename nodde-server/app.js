@@ -9,6 +9,7 @@ var routes = require('./routes/index');
 var users = require('./routes/users');
 var authenticate = require('./routes/authenticate');
 var pools = require('./routes/pools');
+var private = require('./routes/private');
 
 var app = express();
 
@@ -27,7 +28,7 @@ app.use(cookieParser());
 
 
 var corsHeaders = {
-  "Access-Control-Allow-Origin": "http://localhost:4200",
+  "Access-Control-Allow-Origin": "http://localhost:8000",
   "Access-Control-Allow-Methods": "POST, GET, PUT, DELETE, OPTIONS",
   "Access-Control-Allow-Credentials": true,
   "Access-Control-Max-Age": '86400', // 24 hours
@@ -44,6 +45,7 @@ app.use('/', routes);
 app.use('/users', users);
 app.use('/authenticate', authenticate);
 app.use('/pools', pools);
+app.use('/private', private);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
