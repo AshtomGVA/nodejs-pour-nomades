@@ -53,6 +53,7 @@ var authentication = {
         }
         else if(req.body.identifier && req.body.password) {
           var token = authentication.authenticateUser(req.body.identifier, req.body.password);
+          console.log('Token',token)
           if(token) {
             res.writeHead(200);
             res.write({token: token});
