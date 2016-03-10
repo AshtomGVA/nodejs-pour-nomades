@@ -1,48 +1,50 @@
+/**
+ * Created by leojpod on 3/2/16.
+ */
+
 var express = require('express');
 var router = express.Router();
 
-var answers = require('./pools/answers');
-router.use('/:number/answers', answers);
+var PoolSerializer = require('../serializers/pool-serializer');
 
-var results = require('./pools/results');
-router.use('/:number/results', results);
-
-var serializer = require('../serializers/pool-serializer');
 var mockupData = require('../mock-up-data');
-
-var authentication = require('../authentication');
-
-
-getPoolById = function(id) {
-	var pools = mockupData.pools;
-	for(pool in pools) {
-		if(pools[pool].id == id) return pools[pool];
-	}
-	return null;
-	
-}
+var authentication = require('../authentication.js');
 
 router.use(authentication.authenticatedRoute);
 
-/* GET pools */
-router.get('/', function(req, res, next) {
-	var pools = serializer.serialize(mockupData.pools);
-  	res.status(200).send(pools).end();
+router.get('/', function (req, res, next) {
+  var pools = mockupData.pools;
+  var jsonMessage = PoolSerializer.serialize(pools);
+  res.json(jsonMessage);
+});
+router.post('/', function (req, res, next) {
+  res.status(500).json({ error: 'unimplemented'}).end();
 });
 
-/* GET pools */
-router.get('/:number', function(req, res, next) {
-	if(!isNaN(req.params.number)) {
-		var pool = serializer.serialize(getPoolById(req.params.number));
-		if(pool) res.status(200).json(pool).end();
-		else res.status(200).json(serializer.serialize({})).end();
-	}
-	else res.status(400).json({error:'invalid parameter'}).end();
-});
+router.get('/:id', function (req, res, next) {
+  var id = Number.parseInt(req.params.id);
+  if (isNaN(id)) {
+    res.status(400).json({error: 'the segment should be an integer'});
+    return;
+  }
+  var pool = null;
+  for (var i = 0; i < mockupData.pools.length && pool === null; i ++) {
+    if (mockupData.pools[i].id === id) {
+      pool = mockupData.pools[i];
+    }
+  }
 
-/* POST pools */
-router.post('/', function(req, res, next) {
-  res.status(500).send('not implemented yet.').end();
+  var jsonMessage = PoolSerializer.serialize(pool);
+  res.json(jsonMessage);
+});
+router.get('/:id/answers', function (req, res, next) {
+  res.status(500).json({ error: 'unimplemented'}).end();
+});
+router.post('/:id/answers', function (req, res, next) {
+  res.status(500).json({ error: 'unimplemented'}).end();
+});
+router.get('/:id/results', function (req, res, next) {
+  res.status(500).json({ error: 'unimplemented'}).end();
 });
 
 module.exports = router;
