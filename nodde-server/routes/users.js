@@ -4,16 +4,49 @@ var bcrypt = require('bcrypt');
 var ObjectId = require('mongodb').ObjectID;
 
 var router = express.Router();
-
 var UserSerializer = require('../serializers/user-serializer');
+var PoolSerializer = require('../serializers/pool-serializer');
 var authentication = require('../authentication.js');
 
+<<<<<<< Updated upstream
 var mockupData = require('../mock-up-data');
+var User = require('../models/user');
+var Pool = require('../models/pool');
+=======
+router.post('/', function(req,res,next){
+  req.checkBody('data.attributes.name', 'Name is required').notEmpty().isAlphanumeric();
+  req.checkBody('data.attributes.email', 'Email is invalid').isEmail();
+  var errors = req.validationErrors();
+  if (errors) {
+    res.send('There have been validation errors: ', 400);
+    return;
+  }
+  var user = {
+    'name':req.body.data.attributes.name,
+    'email':req.body.data.attributes.email,
+    'password':req.body.data.attributes.password
+  }
+
+  var check = 
+  req.db.collection('users').find({'email':{$eq:user.email}}).toArray().then(function(data){
+      if(data.length<=0) {
+        req.db.collection('users')
+        .insertOne(user,function(err,response){
+          if(err) throw err;
+          res.status(200).send(UserSerializer.serialize(user)).end();
+        })
+      }
+
+      console.log('USER',user); 
+  });
+})
+
+router.use(authentication.authenticatedRoute);
+>>>>>>> Stashed changes
 
 /* GET users listing. */
 router.get('/', authentication.authenticatedRoute, function(req, res, next) {
-  var db = req.db;
-  db.collection('users').find().toArray().then(function(users) {
+  User.find({}).then(function(users) {
     //we browse through them all :
     var jsonMessage = UserSerializer.serialize(users);
     res.json(jsonMessage);
@@ -21,6 +54,7 @@ router.get('/', authentication.authenticatedRoute, function(req, res, next) {
     throw err;
   });
 });
+
 router.get('/:id', authentication.authenticatedRoute, function(req, res, next) {
   req.checkParams('id', 'not a valid ObjectId').isMongoId();
   var errors = req.validationErrors();
@@ -28,11 +62,9 @@ router.get('/:id', authentication.authenticatedRoute, function(req, res, next) {
     res.status(403).json({ success: false, errors: errors });
     return;
   }
-  var db = req.db;
   var id = ObjectId(req.params.id);
-  db.collection('users').find(id).limit(1).toArray().then(function (docs) {
-    if (docs.length > 0) {
-      var user = docs[0];
+  User.findById(id).then(function (user) {
+    if (user) {
       res.json(UserSerializer.serialize(user));
     } else {
       res.json(UserSerializer.serialize(null));
@@ -42,6 +74,23 @@ router.get('/:id', authentication.authenticatedRoute, function(req, res, next) {
   });
 });
 
+router.get('/:id/pools', authentication.authenticatedRoute, function(req, res, next) {
+  req.checkParams('id', 'not a valid ObjectId').isMongoId();
+  var errors = req.validationErrors();
+  if (errors) {
+    res.status(403).json({ success: false, errors: errors });
+    return;
+  }
+  var id = ObjectId(req.params.id);
+
+  console.log(id);
+
+  Pool.findAllByAuthor(id,function(pools){
+    res.status(200).send(PoolSerializer.serialize(pools)).end();
+  });
+});
+
+<<<<<<< Updated upstream
 router.post('/', function(req, res, next) {
   //validate incoming data:
   //we need a user name of min 6 char long
@@ -63,6 +112,12 @@ router.post('/', function(req, res, next) {
   // if any of these parameter does not fit the criteria
   if (errors) {
     res.status(403).json({ success: false, errors: errors });
+=======
+router.get('/:id', function(req, res, next) {
+  var id = Number.parseInt(req.params.id);
+  if (isNaN(id)) {
+    res.status(400).json({error: 'the segment should be an integer'});
+>>>>>>> Stashed changes
     return;
   }
   //now we have valid parameters
@@ -70,10 +125,9 @@ router.post('/', function(req, res, next) {
     email = req.body.data.attributes.email,
     password = req.body.data.attributes.password;
   //check with the database if name and email are unique
-  var db = req.db;
-  db.collection('users').findOne(
-    { $or: [{ name: name }, { email: email }] },
-    function(err, doc) {
+  var query = User.find({});
+  query.or([{ name: name }, { email: email }]);
+  query.exec(function(err, doc) {
       if (err) {
         res.status(500).json({ success: false, errors: err });
       } else {
@@ -93,7 +147,7 @@ router.post('/', function(req, res, next) {
               throw err;
             }
             //create new user and insert it
-            db.collection('users').insertOne({
+            User.create({
               name: name,
               email: email,
               password: hash
@@ -101,7 +155,7 @@ router.post('/', function(req, res, next) {
               if (err) {
                 res.status(500).json({ success: false, error: err });
               } else {
-                var jsonMessage = UserSerializer.serialize(result.ops[0]);
+                var jsonMessage = UserSerializer.serialize(result);
                 res.json(jsonMessage);
               }
             });
@@ -109,9 +163,15 @@ router.post('/', function(req, res, next) {
         }
       }
     }
+<<<<<<< Updated upstream
   );
 
 
+=======
+  }
+  var jsonMessage = UserSerializer.serialize(user);
+  res.json(jsonMessage);
+>>>>>>> Stashed changes
 });
 
 module.exports = router;

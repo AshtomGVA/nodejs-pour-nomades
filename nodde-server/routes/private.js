@@ -24,7 +24,8 @@ router.all('/', function(req, res, next) {
   }
   res.json({
     success: true,
-    message: 'Hello ' + user.name + ' you are authenticated',
+    //message: 'Hello ' + user.name + ' you are authenticated',
+    message: 'Hello you are authenticated',
     userId: userId
   });
 });

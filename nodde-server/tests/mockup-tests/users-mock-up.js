@@ -1,7 +1,6 @@
 /**
  * Created by leojpod on 2/25/16.
  */
-
 var supertest = require('supertest');
 var should = require('should');
 var async = require('async');

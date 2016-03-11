@@ -10,6 +10,7 @@ var authentication = require('../authentication.js');
 var config = require('../config.js');
 
 var router = express.Router();
+var User = require('../models/user');
 
 router.get('/', function(req, res, next) {
   authentication.checkAuthentication(req, function(isAuth) {
@@ -33,13 +34,10 @@ router.post('/', function(req, res, next) {
   var password = req.body.password;
 
   //browse users and try finding the good one
-  var db = req.db;
-  db.collection('users').find({
-    $or: [
-      { name: userIdentifier },
-      { email: userIdentifier }
-    ]
-  }).limit(1).toArray().then(function(users) {
+  var query = User.find({});
+  query.or([{ name: userIdentifier },{ email: userIdentifier }]);
+
+  query.exec(function(err,users) {
     if (users.length > 0) {
       // found the user, let's check the hash
       var user = users[0];

@@ -7,9 +7,7 @@ var bodyParser = require('body-parser');
 var expressValidator = require('express-validator');
 var async = require('async');
 var bcrypt = require('bcrypt');
-
-var MongoClient = require('mongodb').MongoClient;
-
+var mongoose = require('mongoose');
 var routes = require('./routes/index');
 var authenticate = require('./routes/authenticate');
 var pools = require('./routes/pools');
@@ -17,6 +15,14 @@ var users = require('./routes/users');
 var privateApi = require('./routes/private');
 var config = require('./config.js');
 var app = express();
+
+mongoose.connect(config.database);
+var db = mongoose.connection;
+db.on('error', 
+console.error.bind(console, 'connection error: ')
+);
+db.once('open', function () {});
+
 
 // view engine setup
 //app.set('views', path.join(__dirname, 'views'));
@@ -30,59 +36,14 @@ app.use(bodyParser.json());
 app.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 // use bodyParser middleware to decode urlencoded parameters
 app.use(bodyParser.urlencoded({ extended: false }));
+<<<<<<< Updated upstream
 app.use(expressValidator());
 // use cookieParser to extract cookie information from request
+=======
+app.use(expressValidator()); // this line must be immediately after express.bodyParser()!
+>>>>>>> Stashed changes
 app.use(cookieParser());
 //app.use(express.static(path.join(__dirname, 'public')));
-
-var db;
-// connect to the database
-//console.log('about to connect to the db');
-MongoClient.connect(config.database, function(err, dbAccess) {
-  //console.log('mongoClient connected');
-  if (err) {
-    throw err
-  }
-  db = dbAccess;
-  //insert default data
-  var hasCreator = false;
-  async.series([
-    function(cb) {
-      db.collection('users').findOne({ isCreator: true }, function(err, results) {
-        if (err) {
-          throw err;
-        }
-        if (results) {
-          hasCreator = true;
-        }
-        cb();
-      });
-    },
-    function(cb) {
-      if (hasCreator) {
-        cb();
-      } else {
-        bcrypt.hash('password', 10, function(err, hash) {
-          if (err) {
-            throw err;
-          }
-          db.collection('users').insertOne({
-            name: 'john',
-            email: 'john@smith.com',
-            password: hash,
-            isAdmin: true,
-            isCreator: true
-          }, function(err, result) {
-            if (err) {
-              throw err;
-            }
-            cb();
-          });
-        });
-      }
-    }
-  ]);
-});
 
 // use a middleware to place the db access on the request
 app.use(function(req, res, next) {
